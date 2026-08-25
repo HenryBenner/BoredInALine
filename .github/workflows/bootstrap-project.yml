@@ -3,7 +3,7 @@ name: Bootstrap project files
 on:
   push:
     paths:
-      - '.bootstrap/project.tar.xz.b64'
+      - '.bootstrap/ready'
 
 permissions:
   contents: write
@@ -20,11 +20,17 @@ jobs:
       - name: Restore project archive
         shell: bash
         run: |
-          cat .bootstrap/chunk-* > /tmp/project.tar.xz.b64
+          cat .bootstrap/lite-* > /tmp/project.tar.xz.b64
           base64 --decode /tmp/project.tar.xz.b64 > /tmp/project.tar.xz
           tar -xJf /tmp/project.tar.xz -C .
           rm -rf .bootstrap
           rm -f .github/workflows/bootstrap-project.yml
+
+      - name: Regenerate dependency lock files
+        shell: bash
+        run: |
+          npm install --package-lock-only --ignore-scripts --legacy-peer-deps || true
+          (cd server && npm install --package-lock-only --ignore-scripts --legacy-peer-deps) || true
 
       - name: Commit project files
         shell: bash
