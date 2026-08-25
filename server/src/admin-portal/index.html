@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bored in Line - Admin Portal</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #0A0A0A;
+      color: #ffffff;
+      min-height: 100vh;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      border-bottom: 1px solid #2C2C2C;
+      margin-bottom: 30px;
+    }
+    .header h1 { color: #DC143C; font-size: 24px; }
+    .header .bar-name { color: #888; font-size: 14px; }
+    .btn {
+      background-color: #DC143C;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .btn:hover { background-color: #b01030; }
+    .btn-secondary {
+      background-color: #2C2C2C;
+      color: #fff;
+    }
+    .btn-secondary:hover { background-color: #3C3C3C; }
+    .btn-small { padding: 8px 16px; font-size: 12px; }
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .login-box {
+      background-color: #1C1C1C;
+      padding: 40px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+    }
+    .login-box h2 { text-align: center; margin-bottom: 30px; color: #DC143C; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; color: #888; font-size: 14px; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 12px;
+      background-color: #2C2C2C;
+      border: 1px solid #3C3C3C;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      outline: none;
+      border-color: #DC143C;
+    }
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    .tab {
+      padding: 12px 24px;
+      background-color: #1C1C1C;
+      border: none;
+      border-radius: 8px;
+      color: #888;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .tab.active { background-color: #DC143C; color: #fff; }
+    .tab:hover:not(.active) { background-color: #2C2C2C; }
+    .card {
+      background-color: #1C1C1C;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .card-title { font-size: 18px; font-weight: 600; }
+    .card-subtitle { color: #888; font-size: 14px; margin-top: 4px; }
+    .card-actions { display: flex; gap: 8px; }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-active { background-color: #1a472a; color: #4ade80; }
+    .badge-inactive { background-color: #472a1a; color: #de804a; }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #888;
+    }
+    .empty-state h3 { margin-bottom: 10px; color: #fff; }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal {
+      background-color: #1C1C1C;
+      border-radius: 16px;
+      padding: 30px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal h3 { margin-bottom: 20px; }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+    .error { color: #ef4444; font-size: 14px; margin-top: 10px; text-align: center; }
+    .success { color: #4ade80; font-size: 14px; margin-top: 10px; text-align: center; }
+    .hidden { display: none !important; }
+    .register-link { text-align: center; margin-top: 20px; color: #888; font-size: 14px; }
+    .register-link a { color: #DC143C; text-decoration: none; }
+    .register-link a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Login View -->
+    <div id="login-view" class="login-container">
+      <div class="login-box">
+        <h2>Bar Admin Portal</h2>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="login-identifier">Username or Email</label>
+            <input type="text" id="login-identifier" required placeholder="Enter username or email">
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" required>
+          </div>
+          <button type="submit" class="btn" style="width: 100%;">Sign In</button>
+          <div id="login-error" class="error hidden"></div>
+        </form>
+        <div class="register-link">
+          Don't have an account? <a href="#" id="show-register">Register your bar</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Register View -->
+    <div id="register-view" class="login-container hidden">
+      <div class="login-box">
+        <h2>Register Your Bar</h2>
+        <form id="register-form">
+          <div class="form-group">
+            <label for="reg-name">Your Name</label>
+            <input type="text" id="reg-name" required>
+          </div>
+          <div class="form-group">
+            <label for="reg-email">Email</label>
+            <input type="email" id="reg-email" required>
+          </div>
+          <div class="form-group">
+            <label for="reg-password">Password</label>
+            <input type="password" id="reg-password" required minlength="6">
+          </div>
+          <div class="form-group">
+            <label for="reg-bar-name">Bar Name</label>
+            <input type="text" id="reg-bar-name" required>
+          </div>
+          <div class="form-group">
+            <label for="reg-bar-address">Bar Address</label>
+            <input type="text" id="reg-bar-address" required>
+          </div>
+          <button type="submit" class="btn" style="width: 100%;">Register</button>
+          <div id="register-error" class="error hidden"></div>
+        </form>
+        <div class="register-link">
+          Already have an account? <a href="#" id="show-login">Sign in</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard View -->
+    <div id="dashboard-view" class="hidden">
+      <div class="container">
+        <div class="header">
+          <div>
+            <h1>Bored in Line</h1>
+            <div class="bar-name" id="header-bar-name"></div>
+          </div>
+          <button class="btn btn-secondary" id="logout-btn">Logout</button>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" data-tab="profile">Bar Profile</button>
+          <button class="tab" data-tab="deals">Deals</button>
+          <button class="tab" data-tab="events">Events</button>
+        </div>
+
+        <!-- Bar Profile Tab -->
+        <div id="profile-tab">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>Bar Profile</h2>
+          </div>
+          <div class="card">
+            <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+              <div style="flex: 0 0 200px; text-align: center;">
+                <div id="bar-image-container" style="width: 200px; height: 200px; background-color: #2C2C2C; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 12px;">
+                  <img id="bar-image" src="" alt="Bar Image" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                  <span id="bar-image-placeholder" style="color: #888; font-size: 14px;">No Image</span>
+                </div>
+                <input type="file" id="bar-image-input" accept="image/*" style="display: none;">
+                <button class="btn btn-secondary btn-small" id="change-image-btn">Change Image</button>
+                <div id="image-upload-status" style="color: #888; font-size: 12px; margin-top: 8px;"></div>
+              </div>
+              <div style="flex: 1; min-width: 300px;">
+                <form id="bar-profile-form">
+                  <div class="form-group">
+                    <label for="bar-name">Bar Name</label>
+                    <input type="text" id="bar-name" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="bar-address">Address</label>
+                    <input type="text" id="bar-address" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="bar-music">Music Type</label>
+                    <input type="text" id="bar-music" placeholder="e.g., Live Bands, DJ, Country, Top 40">
+                  </div>
+                  <div class="form-group">
+                    <label for="bar-cover">Cover Charge ($)</label>
+                    <input type="number" id="bar-cover" min="0" step="0.01" placeholder="0.00">
+                  </div>
+                  <div class="form-group">
+                    <label for="bar-specials">Specials (comma-separated)</label>
+                    <input type="text" id="bar-specials" placeholder="e.g., Happy Hour 4-7pm, $5 Margaritas">
+                  </div>
+                  <div style="display: flex; gap: 10px;">
+                    <div class="form-group" style="flex: 1;">
+                      <label for="bar-latitude">Latitude</label>
+                      <input type="number" id="bar-latitude" step="0.0000001" placeholder="e.g., 40.7128">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                      <label for="bar-longitude">Longitude</label>
+                      <input type="number" id="bar-longitude" step="0.0000001" placeholder="e.g., -74.0060">
+                    </div>
+                  </div>
+                  <div id="profile-message" style="font-size: 14px; margin-bottom: 10px;"></div>
+                  <button type="submit" class="btn">Save Changes</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deals Tab -->
+        <div id="deals-tab" class="hidden">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>Manage Deals</h2>
+            <button class="btn" id="add-deal-btn">+ Add Deal</button>
+          </div>
+          <div id="deals-list"></div>
+        </div>
+
+        <!-- Events Tab -->
+        <div id="events-tab" class="hidden">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>Manage Events</h2>
+            <button class="btn" id="add-event-btn">+ Add Event</button>
+          </div>
+          <div id="events-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deal Modal -->
+    <div id="deal-modal" class="modal-overlay hidden">
+      <div class="modal">
+        <h3 id="deal-modal-title">Add Deal</h3>
+        <form id="deal-form">
+          <input type="hidden" id="deal-id">
+          <div class="form-group">
+            <label for="deal-title">Title *</label>
+            <input type="text" id="deal-title" required placeholder="e.g., Half-Price Wings">
+          </div>
+          <div class="form-group">
+            <label for="deal-description">Description</label>
+            <textarea id="deal-description" rows="3" placeholder="Describe the deal..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="deal-day">Day of Week</label>
+            <select id="deal-day">
+              <option value="">Every Day</option>
+              <option value="0">Sunday</option>
+              <option value="1">Monday</option>
+              <option value="2">Tuesday</option>
+              <option value="3">Wednesday</option>
+              <option value="4">Thursday</option>
+              <option value="5">Friday</option>
+              <option value="6">Saturday</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="flex: 1;">
+              <label for="deal-start">Start Time</label>
+              <input type="time" id="deal-start">
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label for="deal-end">End Time</label>
+              <input type="time" id="deal-end">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="deal-active" checked> Active
+            </label>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="deal-cancel">Cancel</button>
+            <button type="submit" class="btn">Save Deal</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Event Modal -->
+    <div id="event-modal" class="modal-overlay hidden">
+      <div class="modal">
+        <h3 id="event-modal-title">Add Event</h3>
+        <form id="event-form">
+          <input type="hidden" id="event-id">
+          <div class="form-group">
+            <label for="event-title">Title *</label>
+            <input type="text" id="event-title" required placeholder="e.g., Live Band Night">
+          </div>
+          <div class="form-group">
+            <label for="event-description">Description</label>
+            <textarea id="event-description" rows="3" placeholder="Describe the event..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="event-date">Date *</label>
+            <input type="date" id="event-date" required>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="flex: 1;">
+              <label for="event-start">Start Time</label>
+              <input type="time" id="event-start">
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label for="event-end">End Time</label>
+              <input type="time" id="event-end">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="event-cover">Cover Charge ($)</label>
+            <input type="number" id="event-cover" min="0" step="0.01" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="event-published"> Published
+            </label>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="event-cancel">Cancel</button>
+            <button type="submit" class="btn">Save Event</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api/admin';
+    let authToken = localStorage.getItem('adminToken');
+    let currentAdmin = null;
+    const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    async function apiRequest(endpoint, options = {}) {
+      const headers = { 'Content-Type': 'application/json', ...options.headers };
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+      const response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || data.errors?.[0]?.msg || 'Request failed');
+      return data;
+    }
+
+    function showView(viewId) {
+      document.querySelectorAll('#login-view, #register-view, #dashboard-view').forEach(v => v.classList.add('hidden'));
+      document.getElementById(viewId).classList.remove('hidden');
+    }
+
+    async function checkAuth() {
+      if (!authToken) { showView('login-view'); return; }
+      try {
+        const data = await apiRequest('/profile');
+        currentAdmin = data;
+        document.getElementById('header-bar-name').textContent = data.bar.name;
+        showView('dashboard-view');
+        loadBarProfile();
+        loadDeals();
+        loadEvents();
+      } catch (e) {
+        localStorage.removeItem('adminToken');
+        authToken = null;
+        showView('login-view');
+      }
+    }
+
+    async function loadBarProfile() {
+      try {
+        const bar = await apiRequest('/bar');
+        document.getElementById('bar-name').value = bar.name || '';
+        document.getElementById('bar-address').value = bar.address || '';
+        document.getElementById('bar-music').value = bar.musicType || '';
+        document.getElementById('bar-cover').value = bar.coverCharge || '';
+        document.getElementById('bar-specials').value = (bar.specials || []).join(', ');
+        document.getElementById('bar-latitude').value = bar.latitude || '';
+        document.getElementById('bar-longitude').value = bar.longitude || '';
+        
+        if (bar.imageUrl) {
+          document.getElementById('bar-image').src = bar.imageUrl;
+          document.getElementById('bar-image').style.display = 'block';
+          document.getElementById('bar-image-placeholder').style.display = 'none';
+        } else {
+          document.getElementById('bar-image').style.display = 'none';
+          document.getElementById('bar-image-placeholder').style.display = 'block';
+        }
+      } catch (e) {
+        console.error('Failed to load bar profile:', e);
+      }
+    }
+
+    document.getElementById('bar-profile-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const messageEl = document.getElementById('profile-message');
+      messageEl.textContent = '';
+      messageEl.style.color = '#888';
+      
+      const specialsText = document.getElementById('bar-specials').value;
+      const specials = specialsText ? specialsText.split(',').map(s => s.trim()).filter(s => s) : [];
+      
+      const body = {
+        name: document.getElementById('bar-name').value,
+        address: document.getElementById('bar-address').value,
+        musicType: document.getElementById('bar-music').value || null,
+        coverCharge: parseFloat(document.getElementById('bar-cover').value) || 0,
+        specials: specials,
+        latitude: parseFloat(document.getElementById('bar-latitude').value) || null,
+        longitude: parseFloat(document.getElementById('bar-longitude').value) || null,
+      };
+      
+      try {
+        await apiRequest('/bar', { method: 'PUT', body: JSON.stringify(body) });
+        messageEl.style.color = '#4ade80';
+        messageEl.textContent = 'Profile saved successfully!';
+        document.getElementById('header-bar-name').textContent = body.name;
+        setTimeout(() => { messageEl.textContent = ''; }, 3000);
+      } catch (e) {
+        messageEl.style.color = '#ef4444';
+        messageEl.textContent = e.message;
+      }
+    });
+
+    document.getElementById('change-image-btn').addEventListener('click', () => {
+      document.getElementById('bar-image-input').click();
+    });
+
+    document.getElementById('bar-image-input').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const statusEl = document.getElementById('image-upload-status');
+      statusEl.textContent = 'Uploading...';
+      statusEl.style.color = '#888';
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      try {
+        const response = await fetch(`${API_BASE}/bar/image`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${authToken}` },
+          body: formData
+        });
+        
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Upload failed');
+        
+        document.getElementById('bar-image').src = data.imageUrl;
+        document.getElementById('bar-image').style.display = 'block';
+        document.getElementById('bar-image-placeholder').style.display = 'none';
+        statusEl.style.color = '#4ade80';
+        statusEl.textContent = 'Image uploaded!';
+        setTimeout(() => { statusEl.textContent = ''; }, 3000);
+      } catch (e) {
+        statusEl.style.color = '#ef4444';
+        statusEl.textContent = e.message;
+      }
+      
+      e.target.value = '';
+    });
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errorEl = document.getElementById('login-error');
+      errorEl.classList.add('hidden');
+      try {
+        const identifier = document.getElementById('login-identifier').value.trim();
+        const isEmail = identifier.includes('@');
+        const body = {
+          password: document.getElementById('login-password').value
+        };
+        if (isEmail) {
+          body.email = identifier;
+        } else {
+          body.username = identifier;
+        }
+        const data = await apiRequest('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify(body)
+        });
+        authToken = data.token;
+        localStorage.setItem('adminToken', authToken);
+        checkAuth();
+      } catch (e) {
+        errorEl.textContent = e.message;
+        errorEl.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errorEl = document.getElementById('register-error');
+      errorEl.classList.add('hidden');
+      try {
+        const data = await apiRequest('/auth/register', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: document.getElementById('reg-name').value,
+            email: document.getElementById('reg-email').value,
+            password: document.getElementById('reg-password').value,
+            barName: document.getElementById('reg-bar-name').value,
+            barAddress: document.getElementById('reg-bar-address').value
+          })
+        });
+        authToken = data.token;
+        localStorage.setItem('adminToken', authToken);
+        checkAuth();
+      } catch (e) {
+        errorEl.textContent = e.message;
+        errorEl.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('show-register').addEventListener('click', (e) => { e.preventDefault(); showView('register-view'); });
+    document.getElementById('show-login').addEventListener('click', (e) => { e.preventDefault(); showView('login-view'); });
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      localStorage.removeItem('adminToken');
+      authToken = null;
+      currentAdmin = null;
+      showView('login-view');
+    });
+
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const tabName = tab.dataset.tab;
+        document.getElementById('profile-tab').classList.toggle('hidden', tabName !== 'profile');
+        document.getElementById('deals-tab').classList.toggle('hidden', tabName !== 'deals');
+        document.getElementById('events-tab').classList.toggle('hidden', tabName !== 'events');
+      });
+    });
+
+    async function loadDeals() {
+      try {
+        const deals = await apiRequest('/deals');
+        const container = document.getElementById('deals-list');
+        if (deals.length === 0) {
+          container.innerHTML = '<div class="empty-state"><h3>No deals yet</h3><p>Add your first deal to attract more customers!</p></div>';
+          return;
+        }
+        container.innerHTML = deals.map(deal => `
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">${escapeHtml(deal.title)}</div>
+                <div class="card-subtitle">${deal.day_of_week !== null ? DAYS[deal.day_of_week] : 'Every Day'}${deal.start_time ? ` • ${formatTime(deal.start_time)} - ${formatTime(deal.end_time)}` : ''}</div>
+              </div>
+              <div class="card-actions">
+                <span class="badge ${deal.is_active ? 'badge-active' : 'badge-inactive'}">${deal.is_active ? 'Active' : 'Inactive'}</span>
+                <button class="btn btn-secondary btn-small" onclick="editDeal('${deal.id}')">Edit</button>
+                <button class="btn btn-secondary btn-small" onclick="deleteDeal('${deal.id}')">Delete</button>
+              </div>
+            </div>
+            ${deal.description ? `<p style="color: #888; font-size: 14px;">${escapeHtml(deal.description)}</p>` : ''}
+          </div>
+        `).join('');
+      } catch (e) { console.error('Failed to load deals:', e); }
+    }
+
+    async function loadEvents() {
+      try {
+        const events = await apiRequest('/events');
+        const container = document.getElementById('events-list');
+        if (events.length === 0) {
+          container.innerHTML = '<div class="empty-state"><h3>No events yet</h3><p>Add your first event to drive traffic!</p></div>';
+          return;
+        }
+        container.innerHTML = events.map(event => `
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">${escapeHtml(event.title)}</div>
+                <div class="card-subtitle">${formatDate(event.event_date)}${event.start_time ? ` • ${formatTime(event.start_time)}` : ''}${event.cover_charge > 0 ? ` • $${event.cover_charge} cover` : ''}</div>
+              </div>
+              <div class="card-actions">
+                <span class="badge ${event.is_published ? 'badge-active' : 'badge-inactive'}">${event.is_published ? 'Published' : 'Draft'}</span>
+                <button class="btn btn-secondary btn-small" onclick="editEvent('${event.id}')">Edit</button>
+                <button class="btn btn-secondary btn-small" onclick="deleteEvent('${event.id}')">Delete</button>
+              </div>
+            </div>
+            ${event.description ? `<p style="color: #888; font-size: 14px;">${escapeHtml(event.description)}</p>` : ''}
+          </div>
+        `).join('');
+      } catch (e) { console.error('Failed to load events:', e); }
+    }
+
+    let allDeals = [], allEvents = [];
+    document.getElementById('add-deal-btn').addEventListener('click', () => openDealModal());
+    document.getElementById('add-event-btn').addEventListener('click', () => openEventModal());
+    document.getElementById('deal-cancel').addEventListener('click', () => closeDealModal());
+    document.getElementById('event-cancel').addEventListener('click', () => closeEventModal());
+
+    function openDealModal(deal = null) {
+      document.getElementById('deal-modal-title').textContent = deal ? 'Edit Deal' : 'Add Deal';
+      document.getElementById('deal-id').value = deal?.id || '';
+      document.getElementById('deal-title').value = deal?.title || '';
+      document.getElementById('deal-description').value = deal?.description || '';
+      document.getElementById('deal-day').value = deal?.day_of_week ?? '';
+      document.getElementById('deal-start').value = deal?.start_time?.slice(0,5) || '';
+      document.getElementById('deal-end').value = deal?.end_time?.slice(0,5) || '';
+      document.getElementById('deal-active').checked = deal?.is_active ?? true;
+      document.getElementById('deal-modal').classList.remove('hidden');
+    }
+
+    function closeDealModal() { document.getElementById('deal-modal').classList.add('hidden'); }
+
+    function openEventModal(event = null) {
+      document.getElementById('event-modal-title').textContent = event ? 'Edit Event' : 'Add Event';
+      document.getElementById('event-id').value = event?.id || '';
+      document.getElementById('event-title').value = event?.title || '';
+      document.getElementById('event-description').value = event?.description || '';
+      document.getElementById('event-date').value = event?.event_date?.slice(0,10) || '';
+      document.getElementById('event-start').value = event?.start_time?.slice(0,5) || '';
+      document.getElementById('event-end').value = event?.end_time?.slice(0,5) || '';
+      document.getElementById('event-cover').value = event?.cover_charge || '';
+      document.getElementById('event-published').checked = event?.is_published ?? false;
+      document.getElementById('event-modal').classList.remove('hidden');
+    }
+
+    function closeEventModal() { document.getElementById('event-modal').classList.add('hidden'); }
+
+    document.getElementById('deal-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('deal-id').value;
+      const body = {
+        title: document.getElementById('deal-title').value,
+        description: document.getElementById('deal-description').value || null,
+        day_of_week: document.getElementById('deal-day').value ? parseInt(document.getElementById('deal-day').value) : null,
+        start_time: document.getElementById('deal-start').value || null,
+        end_time: document.getElementById('deal-end').value || null,
+        is_active: document.getElementById('deal-active').checked
+      };
+      try {
+        if (id) await apiRequest(`/deals/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+        else await apiRequest('/deals', { method: 'POST', body: JSON.stringify(body) });
+        closeDealModal();
+        loadDeals();
+      } catch (e) { alert(e.message); }
+    });
+
+    document.getElementById('event-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('event-id').value;
+      const body = {
+        title: document.getElementById('event-title').value,
+        description: document.getElementById('event-description').value || null,
+        event_date: document.getElementById('event-date').value,
+        start_time: document.getElementById('event-start').value || null,
+        end_time: document.getElementById('event-end').value || null,
+        cover_charge: parseFloat(document.getElementById('event-cover').value) || 0,
+        is_published: document.getElementById('event-published').checked
+      };
+      try {
+        if (id) await apiRequest(`/events/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+        else await apiRequest('/events', { method: 'POST', body: JSON.stringify(body) });
+        closeEventModal();
+        loadEvents();
+      } catch (e) { alert(e.message); }
+    });
+
+    async function editDeal(id) {
+      try {
+        const deals = await apiRequest('/deals');
+        const deal = deals.find(d => d.id === id);
+        if (deal) openDealModal(deal);
+      } catch (e) { alert(e.message); }
+    }
+
+    async function editEvent(id) {
+      try {
+        const events = await apiRequest('/events');
+        const event = events.find(e => e.id === id);
+        if (event) openEventModal(event);
+      } catch (e) { alert(e.message); }
+    }
+
+    async function deleteDeal(id) {
+      if (!confirm('Are you sure you want to delete this deal?')) return;
+      try {
+        await apiRequest(`/deals/${id}`, { method: 'DELETE' });
+        loadDeals();
+      } catch (e) { alert(e.message); }
+    }
+
+    async function deleteEvent(id) {
+      if (!confirm('Are you sure you want to delete this event?')) return;
+      try {
+        await apiRequest(`/events/${id}`, { method: 'DELETE' });
+        loadEvents();
+      } catch (e) { alert(e.message); }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function formatTime(time) {
+      if (!time) return '';
+      const [h, m] = time.split(':');
+      const hour = parseInt(h);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 || 12;
+      return `${hour12}:${m} ${ampm}`;
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      let date;
+      if (dateStr.includes('T') || dateStr.includes(' ')) {
+        date = new Date(dateStr);
+      } else {
+        date = new Date(dateStr + 'T12:00:00');
+      }
+      if (isNaN(date.getTime())) return dateStr;
+      return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+
+    checkAuth();
+  </script>
+</body>
+</html>

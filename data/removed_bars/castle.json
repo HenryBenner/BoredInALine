@@ -1,0 +1,26 @@
+{
+  "bar": {
+    "id": "1044f1ba-6e8b-46b6-9af8-e845f3f1ba67",
+    "name": "Castle",
+    "address": "234 E 17th",
+    "music_type": "Pham JP and Biskup mix",
+    "cover_charge": 0.00,
+    "crowd_level": "packed",
+    "distance": 0.00,
+    "specials": [],
+    "image_url": "/api/media/bars/1044f1ba-6e8b-46b6-9af8-e845f3f1ba67/castle-main.jpg",
+    "rating": 4.80,
+    "latitude": 40.0020560,
+    "longitude": -83.0020360
+  },
+  "admin": {
+    "id": "340ddd3f-88d7-4252-b9e5-81c9789091df",
+    "email": "castle@boredinline.com",
+    "username": "castle_house",
+    "password_plain": "c4stl3N1ghts",
+    "password_hash": "$2a$10$eFCfjd/TsWnORxFXbM7ewuothQrxo3X9ycs0s6r56rcdTIZf6NXU.",
+    "name": "Castle Admin",
+    "role": "owner"
+  },
+  "notes": "Removed on 2025-12-17. To re-add, insert bar and admin data back into database."
+}
